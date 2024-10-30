@@ -4,6 +4,8 @@ const fs = require("fs");
 const pg = require("pg");
 require("dotenv").config();
 const app = express();
+const cron = require('node-cron');
+const nodemailer = require('nodemailer')
 app.use(cors());
 app.options("*", cors());
 app.use(express.json());
@@ -166,6 +168,50 @@ const deleteEvent = async (email, eventId) => {
     console.error("Error deleting event:", err.stack);
   }
 };
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail', // or your email service
+  auth: {
+    user: process.env.testmail,
+    pass: 'fujqjnqydlyaldnr' // Use an app password if 2FA is enabled
+  }
+});
+
+cron.schedule("* * * * *", async () => {
+  try {
+    const now = new Date();
+    const eightHoursLater = new Date(now.getTime() + 8 * 60 * 60 * 1000);
+    const oneDayLater = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
+    // Query for events happening between 8 and 24 hours from the current time
+    const query = `
+      SELECT * FROM events 
+      WHERE date >= $1
+      AND date <= $2;
+    `;
+
+    const { rows: events } = await client.query(query, [eightHoursLater.toISOString(), oneDayLater.toISOString()]);
+
+    events.forEach(event => {
+      // Send email reminder
+      const mailOptions = {
+        from: process.env.testmail,
+        to: event.email,
+        subject: `Reminder: ${event.title}`,
+        text: `This is a reminder for your event: ${event.title} happening on ${event.date}. Description: ${event.description}`
+      };
+
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          return console.log("Error sending email:", error);
+        }
+        console.log("Email sent:", info.response);
+      });
+    });
+  } catch (err) {
+    console.error("Error checking reminders:", err);
+  }
+});
 
 app.post("/login", async (req, res) => {
   const { name, email, photo } = req.body;
