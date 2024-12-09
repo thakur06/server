@@ -226,7 +226,7 @@ app.post("/addevent", async (req, res) => {
 });
 app.post("/fetchevent", async (req, res) => {
   const { email } = req.body;
-  console.log(email);
+  console.log(process.env.testmail);
   const response = await fetchEvents(email);
   console.log(response);
   res.json(response);
