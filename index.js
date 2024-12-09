@@ -195,7 +195,7 @@ cron.schedule("* * * * *", async () => {
     events.forEach(event => {
       // Send email reminder
       const mailOptions = {
-        from: process.env.testmail,
+        from: process.env.TESTMAIL,
         to: event.email,
         subject: `Reminder: ${event.title}`,
         text: `This is a reminder for your event: ${event.title} happening on ${event.date}. Description: ${event.description}`
