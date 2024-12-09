@@ -172,7 +172,7 @@ const deleteEvent = async (email, eventId) => {
 const transporter = nodemailer.createTransport({
   service: 'gmail', // or your email service
   auth: {
-    user: process.env.testmail,
+    user: process.env.TESTMAIL,
     pass: 'fujqjnqydlyaldnr' // Use an app password if 2FA is enabled
   }
 });
