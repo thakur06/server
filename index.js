@@ -180,7 +180,7 @@ const transporter = nodemailer.createTransport({
 cron.schedule("* * * * *", async () => {
   try {
     const now = new Date();
-    const eightHoursLater = new Date(now.getTime() + 8 * 60 * 60 * 1000);
+    const eightHoursLater = new Date(now.getTime() + 1 * 60 * 1000);
     const oneDayLater = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 
     // Query for events happening between 8 and 24 hours from the current time
