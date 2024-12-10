@@ -169,6 +169,19 @@ const deleteEvent = async (email, eventId) => {
   }
 };
 
+const getEvent = async (email, date) => {
+  try {
+    const events = await client.query(
+      `SELECT * FROM events WHERE email = $1 AND date = $2;`,
+      [email,date]
+    );
+    console.log("Fetched events:", events.rows);
+    return events.rows;
+  } catch (err) {
+    console.error("Error fetching events:", err.stack);
+  }
+};
+
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   port: 587,
@@ -215,6 +228,15 @@ cron.schedule("* * * * *", async () => {
   }
 });
 
+app.post("/getevent", async (req, res) => {
+  const { email,date } = req.body;
+  console.log(email);
+  console.log(date);
+  const response = await getEvent(email,date);
+  console.log(response);
+  res.json(response);
+});
+
 app.post("/login", async (req, res) => {
   const { name, email, photo } = req.body;
   insertUser(name, email, photo);
@@ -239,6 +261,7 @@ app.post("/updateevent", async (req, res) => {
   updateEvent(email, eventId, title, date, time, description);
   res.send("tested update endpoint");
 });
+
 app.post("/deleteevent", async (req, res) => {
   console.log("i am delete event " + req.body);
   const { email, eventId } = req.body;
